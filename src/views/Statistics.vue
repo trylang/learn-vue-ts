@@ -34,10 +34,11 @@
 <script lang="ts">
 import { Component, Vue, Watch, Prop } from "vue-property-decorator";
 import smallTitle from "@/components/SmallTitle.vue";
-import * as echarts from "echarts/src/echarts.js";
+// import * as echarts from "echarts/src/echarts.js";
 
 // 引入饼图。
-import "echarts/src/chart/bar";
+// import "echarts/src/chart/bar";
+import echarts from 'echarts';
 @Component({
   components: {
     smallTitle
@@ -86,10 +87,10 @@ export default class List extends Vue {
     let option = {
       tooltip: {
         trigger: "axis",
-        // axisPointer: {
-        //   // 坐标轴指示器，坐标轴触发有效
-        //   type: "shadow" // 默认为直线，可选为：'line' | 'shadow'
-        // }
+        axisPointer: {
+          // 坐标轴指示器，坐标轴触发有效
+          type: "shadow" // 默认为直线，可选为：'line' | 'shadow'
+        }
       },
       grid: {
         left: "3%",
