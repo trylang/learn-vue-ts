@@ -1,0 +1,38 @@
+html, body {
+  width: 100%;
+  min-height: 100%;
+}
+#app {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  width: 100%;
+  min-height: 100%;
+  /* color: #2c3e50; */
+}
+*{
+  margin: 0;
+  padding: 0;
+}
+h1, h2 {
+  font-weight: normal;
+}
+
+a {
+  text-decoration: none;
+}
+
+.el-input-group__append, .el-input-group__prepend {
+  background-color: #fff;
+}
+
+.el-button:focus, .el-button:hover {
+  background-color: #fff;
+}
+
+.el-radio-button__orig-radio:checked + .el-radio-button__inner {
+  color: #284567;
+  background-color: #fff;
+  border-color: #284567;
+}
