@@ -1,7 +1,7 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import photoRoute from './photo'
-import Layout from '@/views/layout'
+import Vue from 'vue';
+import Router from 'vue-router';
+import photoRoute from './photo';
+import Layout from '@/views/layout/index.vue';
 
 Vue.use(Router);
 
@@ -15,8 +15,8 @@ export default new Router({
     {
       path: '/photo',
       component: Layout,
-      redirect: "/photo/list",
+      redirect: '/photo/list',
       children: photoRoute,
-    }
+    },
   ],
 });

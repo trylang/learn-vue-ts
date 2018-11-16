@@ -4,16 +4,35 @@
     <div class="select-condition">
       
       <el-date-picker
+            v-model="param.date[0]"
+            type="date"
+            format="yyyy-MM-dd"
+            value-format="yyyy-MM-dd"
+            @change="getStatics"
+            placeholder="开始日期"
+            :picker-options="pickerOptions0">
+      </el-date-picker>
+      <el-date-picker
+            v-model="param.date[1]"
+            type="date"
+            format="yyyy-MM-dd"
+            value-format="yyyy-MM-dd"
+            @change="getStatics"
+            placeholder="结束日期"
+            :picker-options="pickerOptions1">
+      </el-date-picker>
+
+      <!-- <el-date-picker
         style="margin-right: 27px;"
         v-model="param.date"
+        type="daterange"
         format="yyyy-MM-dd"
         value-format="yyyy-MM-dd"
-        type="daterange"
         @change="getStatics"
         range-separator="至"
         start-placeholder="开始日期"
         end-placeholder="结束日期">
-      </el-date-picker>
+      </el-date-picker> -->
 
       <el-select v-model="param.state" @change="getStatics" placeholder="统计类型">
         <el-option
@@ -34,57 +53,83 @@
 <script lang="ts">
 import { Component, Vue, Watch, Prop } from "vue-property-decorator";
 import smallTitle from "@/components/SmallTitle.vue";
+import { timestampToTime } from "@/utils/index";
+import httpServer from '@/utils/http.ts';
+import {
+  State,
+} from 'vuex-class';
 // import * as echarts from "echarts/src/echarts.js";
 
 // 引入饼图。
 // import "echarts/src/chart/bar";
-import echarts from 'echarts';
+import echarts from "echarts";
+// declare module 'echarts';
 @Component({
   components: {
     smallTitle
   }
 })
 export default class List extends Vue {
-  public myChart = null;
-  private param: any = {};
+  @State userInfo: any;
+  public myChart: any = {};
+  private param: any = {
+    date: [
+      timestampToTime(new Date().getTime() - 31 * 24 * 3600 * 1000, "ymd"),
+      timestampToTime(new Date().valueOf(), "ymd")
+    ]
+  };
   private list: any = [];
+  private pickerOptions0: any = {
+    disabledDate: (time: any) => {
+      if ((this.param.date[1]! = "")) {
+        return (
+          time.getTime() > Date.now() || time.getTime() > this.param.date[1]
+        );
+      } else {
+        return time.getTime() > Date.now();
+      }
+    }
+  };
 
+  private pickerOptions1: any = {
+    disabledDate: (time: any) => {
+      if ((this.param.date[0]! = "" || this.param.date[0] != null)) {
+        const startVal = new Date(this.param.date[0]).getTime();
+        const endVal = new Date(this.param.date[1]).getTime();
+        const oneYear = 31 * 24 * 3600 * 1000;
+        const oneYearNum = startVal + oneYear;
+
+        if (oneYearNum > oneYear) {
+          return time.getTime() > oneYearNum;
+        }
+      }
+    }
+  };
   public handleDownload() {
-    let param = {
-      method: 'POST',
-      url: 'wxapp-bill-integral/b/bill/statics/export',
-      responseType: 'blob',
+    const param = {
+      method: "POST",
+      url: "wxapp-bill-integral/b/bill/statics/export",
+      responseType: "blob",
       params: {
-        portalId: this.$store.state.userInfo.portalId
+        portalId: this.userInfo.portalId
       }
     };
-    this.$api(param).then(res => {
-      var href = window.URL.createObjectURL(res);
-      var eleLink = document.createElement("a");
+    httpServer(param).then((res: any) => {
+      let href = window.URL.createObjectURL(res);
+      let eleLink = document.createElement("a");
       eleLink.download = `数据统计.xls`;
       eleLink.href = href;
       eleLink.click();
-    })
-  }
-
-  private format(data) {
-    let list = data.sort(function(a, b) {
-      return Date.parse(a.day) - Date.parse(b.day);
     });
-    let xAxis = list.map(item => item.day);
-    let series = list.map(item => item.total);
-    return {
-      xAxis,
-      series
-    };
   }
 
   // 绘制图表
-  public initOptions(data) {
-    let formate = this.format(data);
-
-    this.myChart = echarts.init(this.$refs.echart);
-    let option = {
+  public initOptions(data: any) {
+    const formate = this.format(data);
+    let dom:any = this.$refs.echart; 
+    this.myChart = echarts.init(dom);
+    const option = {
+      color: ["#BBD8E0", "#C1E5D6", "#E5E5C1", "#BBC1E0", "#E0BBE0", "#E0BBBD"],
       tooltip: {
         trigger: "axis",
         axisPointer: {
@@ -111,31 +156,42 @@ export default class List extends Vue {
         }
       ]
     };
-    console.log(JSON.stringify(option))
     this.myChart.setOption(option);
   }
 
   public getStatics() {
-    let param = {
+    const param = {
       method: "POST",
       url: "wxapp-bill-integral/b/bill/statics",
       params: {
-        portalId: 290 || this.$store.state.userInfo.portalId,
+        portalId: this.userInfo.portalId,
         state: this.param.state,
-        startDate: this.param.date ? this.param.date[0]: "2010-05-01",
-        endDate: this.param.date ? this.param.date[1]: "2018-11-13"
+        startDate: this.param.date ? this.param.date[0] : "2010-05-01",
+        endDate: this.param.date ? this.param.date[1] : "2018-11-13"
       }
     };
 
-    this.$api(param).then(res => {
-      if (res.status == 200) {
+    httpServer(param).then((res: any) => {
+      if (res.status === 200) {
         this.initOptions(res.data);
       }
     });
   }
 
-  mounted() {
+  public mounted() {
     this.getStatics();
+  }
+
+  private format(data: any) {
+    const list = data.sort(function(a: any, b: any) {
+      return Date.parse(a.day) - Date.parse(b.day);
+    });
+    const xAxis = list.map((item: any) => item.day);
+    const series = list.map((item: any) => item.total);
+    return {
+      xAxis,
+      series
+    };
   }
 }
 </script>

@@ -1,6 +1,9 @@
-const baseUrl = '/';
-
+const baseUrl = '/test/aa';
+console.log(111111111111111)
 module.exports = {
+  baseUrl: process.env.NODE_ENV === 'production'
+  ? '/mafront/application/photo-integral'
+  : '/mafront/application/photo-integral',
   devServer: {
     publicPath: baseUrl, // 和 baseUrl 保持一致
     proxy: {

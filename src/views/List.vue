@@ -119,63 +119,69 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch, Prop } from "vue-property-decorator";
-import smallTitle from "@/components/SmallTitle.vue";
+import { Component, Vue, Watch, Prop } from 'vue-property-decorator';
+import smallTitle from '@/components/SmallTitle.vue';
+import httpServer from '@/utils/http.ts';
 
-import {timestampToTime} from '@/utils/index.ts'
+import { timestampToTime } from '@/utils/index.ts';
+import {
+  State,
+} from 'vuex-class';
 @Component({
   components: {
     smallTitle
   }
 })
+
 export default class List extends Vue {
-  private activityName: string = "";
-  private turntableName: string = "";
-  private dateRange: string = "";
+  @State userInfo: any;
+  private activityName: string = '';
+  private turntableName: string = '';
+  private dateRange: string = '';
   private total: number = 1;
   private size: number = 10;
   private loading: boolean = false;
   private currentPage: number = 1;
-  private sizeList: array = [10, 20, 30];
-  private list: array = [];
-
+  private sizeList: number[] = [10, 20, 30];
+  private list: any = [];
   public getRowClass({ row, column, rowIndex, columnIndex }: any) {
-    if (rowIndex == 0) {
-      return "background:#284567;color:#fff;text-align:center;height:44px;";
+    if (rowIndex === 0) {
+      return 'background:#284567;color:#fff;text-align:center;height:44px;';
     } else {
-      return "";
+      return '';
     }
   }
   public handleCreated() {
-    this.$router.push("add");
+    this.$router.push('add');
   }
 
   public handleDownload() {
-    let param = {
+    const param = {
       method: 'POST',
       url: 'wxapp-bill-integral/b/bill/export',
       responseType: 'blob',
       params: {
-        portalId: this.$store.state.userInfo.portalId
-      }
+        portalId: this.userInfo.portalId,
+      },
     };
-    this.$api(param).then(res => {
-      var href = window.URL.createObjectURL(res);
-      var eleLink = document.createElement("a");
+    httpServer(param).then((res: any) => {
+      let href = window.URL.createObjectURL(res);
+      let eleLink = document.createElement('a');
       eleLink.download = `订单列表.xls`;
       eleLink.href = href;
       eleLink.click();
-    })
+    });
+  }
+  public handleLinkMod(index: number, row: any) {
+    // 审核
+    sessionStorage.setItem('detail', JSON.stringify(row));
+    this.$router.push({ path: 'detail', query: { type: 'audit' } });
   }
 
-  public handleLinkMod(index, row) { // 审核
+  public handleLinkCompute(index: number, row: any) {
+    // 查看
     sessionStorage.setItem('detail', JSON.stringify(row));
-    this.$router.push({path: "detail", query: { type: 'audit' }});
-  }
-
-  public handleLinkCompute(index, row) { // 查看
-    sessionStorage.setItem('detail', JSON.stringify(row));
-    this.$router.push({path: "detail", query: { type: 'view' }});
+    this.$router.push({ path: 'detail', query: { type: 'view' } });
   }
 
   public handleIconClick() {
@@ -193,28 +199,28 @@ export default class List extends Vue {
   }
 
   public getActivityList() {
-    let param = {
+    const param = {
       method: 'POST',
       url: 'wxapp-bill-integral/b/bill/list',
       params: {
-        portalId: this.$store.state.userInfo.portalId,
+        portalId: this.userInfo.portalId,
         page: this.currentPage || 1,
         pageSize: this.size
       }
     };
-    this.$api(param).then(res => {
-      if (res.status == 200) {
-        res.data.list.forEach(item => {
-          item.createTime = timestampToTime(item.createTime)
-          item.shoppingTime = timestampToTime(item.shoppingTime)
-        })
+    httpServer(param).then((res: any) => {
+      if (res.status === 200) {
+        res.data.list.forEach((item: any) => {
+          item.createTime = timestampToTime(item.createTime);
+          item.shoppingTime = timestampToTime(item.shoppingTime);
+        });
         this.total = res.data.total;
         this.list = res.data.list;
       }
-    })
+    });
   }
 
-  created() {
+  public created() {
     this.getActivityList();
   }
 }

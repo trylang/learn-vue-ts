@@ -9,12 +9,12 @@
 </template>
 
 <script lang="ts">
-import pHeader from './Header'
-import { Component, Vue, Model } from 'vue-property-decorator' 
+import pHeader from './Header.vue';
+import { Component, Vue, Model } from 'vue-property-decorator';
 
 @Component({
   components: {
-    pHeader
+    pHeader,
   }
 })
 export default class Layout extends Vue {}

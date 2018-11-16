@@ -2,19 +2,18 @@
   <div>
     <small-title title="审核详情"></small-title>
     <div class="content">
-
       <div class="left">
         <el-carousel :autoplay="false" indicator-position="outside" trigger="click">
           <el-carousel-item v-for="item in detail.receiptPhotos" :key="item">
-            <img :src="item" alt="">
+            <img :src="item" alt="" @click="clickImg($event)">
           </el-carousel-item>
         </el-carousel>
       </div>
 
       <div class="right" >
         <header v-if="auditType=='view'">
-          <p>审核时间：<span>{{detail.shoppingTime}}</span></p>
-          <p>审核人：<span>步步高新天地信息部</span></p>
+          <p>审核时间：<span>{{detail.optionTime}}</span></p>
+          <!-- <p>审核人：<span>步步高新天地信息部</span></p> -->
           <p v-if="detail.reason">驳回理由：<span>{{detail.reason}}</span></p>
           <img v-if="detail.state == 1" src="../assets/imgs/pass.png" alt="">
           <img v-if="detail.state == 2" src="../assets/imgs/reject.png" alt="">
@@ -29,7 +28,7 @@
 
           </div>
           <div class="item">
-            <p>Cid<span>{{detail.cid}}</span></p>
+            <p>CID：<span>{{detail.cid}}</span></p>
           </div>
   
         </div>
@@ -68,10 +67,10 @@
                   :value="item.id">
                 </el-option>
               </el-select>
-              <div>
+              <div style="width: 37%; margin-left: .5rem;">
                 <span class="verify" @click="verify">排重验证</span>
-                <span v-if="ifverify > 0" style="color: #71B900;position: absolute; width: 20%; padding-left: 1rem;"><i class="el-icon-circle-check"></i>成功认证</span>
-                <span v-if="ifverify == 0" style="color: #FF7633;position: absolute; width: 20%; padding-left: 1rem;"><i class="el-icon-circle-close"></i>重复订单</span>
+                <span v-if="ifverify > 0" style="color: #71B900;position: absolute; width: 40%; padding-left: 1rem;"><i class="el-icon-circle-check"></i>成功认证</span>
+                <span v-if="ifverify == 0" style="color: #FF7633;position: absolute; width: 40%; padding-left: 1rem;"><i class="el-icon-circle-close"></i>重复订单</span>
               </div>              
             </el-form-item>
 
@@ -84,62 +83,82 @@
                 <el-radio-button border label="2">驳回</el-radio-button>
               </el-radio-group>
             </el-form-item>
-            <el-form-item label="消费金额：">
-              <el-input placeholder="请填写当前小票消费金额" v-model="detail.shoppingFee"></el-input>
+            <el-form-item class="number-input" label="消费金额：">
+              <el-input-number placeholder="请填写当前小票消费金额" v-model="detail.shoppingFee"></el-input-number>
             </el-form-item>
-            <el-form-item label="本次积分：">
-              <el-input placeholder="请填写积分数额" v-model="detail.integral"></el-input>
+            <el-form-item class="number-input" label="本次积分：">
+              <el-input-number placeholder="请填写积分数额" :step="1" v-model="detail.integral"></el-input-number>
             </el-form-item>
             <el-form-item v-if="detail.state == 2" label="驳回理由：">
               <el-input placeholder="请填写积分数额" type="textarea" :rows="2" v-model="detail.reason"></el-input>
             </el-form-item>
             <el-form-item style="width: 38rem; margin-left: -100px;margin-top；1rem;">
               <el-button class="btn btn-cancel" @click="onSubmit">审核小票</el-button>
-              <el-button class="btn btn-submit" @click="onSubmit('next')">审核小票并继续</el-button>
+              <el-button v-if="this.list.length > 0" class="btn btn-submit" @click="onSubmit('next')">审核小票并继续</el-button>
               <el-button class="btn btn-cancel">返回列表</el-button>
             </el-form-item>
           </el-form>
         </div>
 
       </div>
-
     </div>
+    <big-img v-if="showImg" @clickit="viewImg" :imgSrc="imgSrc"></big-img>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch, Prop } from "vue-property-decorator";
-import smallTitle from "@/components/SmallTitle.vue";
-
+import { Component, Vue, Watch, Prop } from 'vue-property-decorator';
+import smallTitle from '@/components/SmallTitle.vue';
+import bigImg from '@/components/ShowImg.vue';
+import { timestampToTime } from '@/utils/index.ts';
+import httpServer from '@/utils/http.ts';
+import {
+  State,
+} from 'vuex-class';
 @Component({
   components: {
-    smallTitle
-  }
+    smallTitle,
+    bigImg,
+  },
 })
 export default class List extends Vue {
-
+  @State userInfo: any;
+  public auditType: string = '';
   private ifverify: number = -1;
+  private imgSrc: string = '';
+  private showImg: boolean = false;
   private detail: any = {};
   private stores: any = [];
-  public auditType: string;
+  private list: any = [];
 
-  public onSubmit() {
+  public clickImg(e: any) {
+    this.showImg = true;
+    // 获取当前图片地址
+    this.imgSrc = e.currentTarget.src;
+  }
+  public viewImg() {
+    this.showImg = false;
+  }
+
+  public onSubmit(type: string) {
     if (!this.detail.receiptNumber || !this.detail.storeId) {
       this.$message('请填写完成信息');
       return;
     }
-    if (this.detail.state == 0) {
+    if (this.detail.state === 0) {
       this.$message('请选择审核结果');
       return;
     }
-    let store = this.stores.find(item => item.id == this.detail.storeId);
-    let param = {
+    const store = this.stores.find(
+      (item: any) => item.id === this.detail.storeId,
+    );
+    const param = {
       method: 'POST',
       url: 'wxapp-bill-integral/b/bill/audit',
       params: {
-        portalId: this.$store.state.userInfo.portalId,
-        userId: this.$store.state.userInfo.userId,
-        id: this.detail.id,       
+        portalId: this.userInfo.portalId,
+        userId: this.userInfo.userId,
+        id: this.detail.id,
         receiptNumber: this.detail.receiptNumber,
         shoppingTime: this.detail.shoppingTime,
         reason: this.detail.reason,
@@ -147,69 +166,98 @@ export default class List extends Vue {
         integral: this.detail.integral * 100,
         state: this.detail.state,
         storeId: this.detail.storeId,
-      }
+      },
     };
-    let that = this;
-    this.$api(param).then(res => {
+    const that = this;
+    httpServer(param).then((res: any) => {
       this.$message({
         message: '审核完成',
-        type: 'success'
+        type: 'success',
       });
-      that.$router.push("list");
-    })
-    
+      if (type === 'next') {
+        sessionStorage.setItem('detail', JSON.stringify(this.list[0]));
+        window.history.go(0);
+      } else {
+        that.$router.push('list');
+      }
+    });
   }
 
-  public verify() { // 验重
+  public verify() {
+    // 验重
     if (!this.detail.receiptNumber || !this.detail.storeId) {
       this.$message('请填写完成信息');
       return;
     }
-    let param = {
+    const param = {
       method: 'POST',
       url: 'wxapp-bill-integral/b/bill/check',
       params: {
-        portalId: this.$store.state.userInfo.portalId,
+        portalId: this.userInfo.portalId,
         receiptNumber: this.detail.receiptNumber,
         storeId: this.detail.storeId,
-      }
+      },
     };
-    let that = this;
-    this.$api(param).then(res => {
+    const that = this;
+    httpServer(param).then((res: any) => {
       this.ifverify = res.data;
-    }) 
+    });
+  }
+
+  public getActivityList() {
+    const param = {
+      method: 'POST',
+      url: 'wxapp-bill-integral/b/bill/list',
+      params: {
+        portalId: this.userInfo.portalId,
+        state: 0,
+        page: 1,
+        pageSize: 1,
+      },
+    };
+    httpServer(param).then((res: any) => {
+      if (res.status === 200) {
+        res.data.list.forEach((item: any) => {
+          item.createTime = timestampToTime(item.createTime);
+          item.shoppingTime = timestampToTime(item.shoppingTime);
+        });
+        this.list = res.data.list;
+      }
+    });
   }
 
   private getStores() {
-    let param = {
+    const param = {
       method: 'POST',
       url: 'wxapp-bill-integral/common/bill/store/list',
       params: {
-        portalId: this.$store.state.userInfo.portalId,
-        keyWords: ''
-      }
+        portalId: this.userInfo.portalId,
+        keyWords: '',
+      },
     };
-    this.$api(param).then(res => {
-      if (res.status == 200) {
+    httpServer(param).then((res: any) => {
+      if (res.status === 200) {
         this.stores = res.data;
       }
-    })
+    });
   }
 
   //监听路由变化
   @Watch('$route')
-  onRouteChanged(route: any, oldRoute: any) :void {
+  public onRouteChanged(route: any, oldRoute: any): void {
     this.auditType = route.query.type;
   }
 
-  created() {
+  public created() {
     this.getStores();
-    let detail = sessionStorage.getItem('detail') ? JSON.parse(sessionStorage.getItem('detail')) : {};
+    this.getActivityList();
+    const sessionDetail = sessionStorage.getItem('detail');
+    const detail = sessionDetail ? JSON.parse(sessionDetail) : {};
     detail.receiptPhotos = JSON.parse(detail.receiptPhotos);
     detail.shoppingFee = detail.shoppingFee * 0.01;
+    detail.shoppingTime = detail.shoppingTime.split(' ')[0];
     this.detail = detail;
     this.auditType = this.$route.query.type;
-    console.log(this.detail)
   }
 }
 </script>
@@ -225,6 +273,7 @@ export default class List extends Vue {
       margin-left: 2rem;
     }
     .el-carousel {
+      margin-left: 32px;
       overflow: -webkit-paged-x;
     }
     .el-carousel__item {
@@ -238,9 +287,10 @@ export default class List extends Vue {
   }
   .right {
     flex: 2;
+    margin-left: 32px;
     header {
       background: #f6f6f6;
-      opacity: .5;
+      opacity: 0.5;
       height: 80px;
       margin-bottom: 1rem;
       display: flex;
@@ -257,7 +307,6 @@ export default class List extends Vue {
       }
       img {
         display: block;
-        padding-right: 2rem;
       }
     }
     h5 {

@@ -1,13 +1,3 @@
-
-// // iview 全局方法
-// declare module 'vue/types/vue' {
-//   interface Vue {
-//     $Message: any,
-//     $Modal: any,
-//     $api:any
-//   }
-// }
-
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import {Route} from 'vue-router'
@@ -19,9 +9,6 @@ declare module "*.vue" {
 declare module 'vue/types/vue' {
   interface Vue {
     $router: VueRouter,
-    $route: Route,
-    $Message: any,
-    $Modal: any,
-    $api:any,
+    $route: Route
   }
 }

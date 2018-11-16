@@ -4,7 +4,7 @@
             <div class="grid-content header-left bg-purple-dark left-info">
                 <img src="../../assets/imgs/logo.png" class="logo-img" alt="">
             </div>
-            <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
+            <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal">
                 <el-menu-item index="list">
                     <router-link :to="{path:'/photo/list'}">
                         小票审核
@@ -26,21 +26,20 @@
 </template>
 
 <script lang="ts">
-import { Component, Watch, Vue, Model } from 'vue-property-decorator' 
+import { Component, Watch, Vue, Model } from 'vue-property-decorator';
 
 @Component({})
 export default class Header extends Vue {
-  public activeIndex: string = "list";
-  public handleSelect() {}
-  
-  //监听路由变化
+  public activeIndex: string = 'list';
+
+  // 监听路由变化
   @Watch('$route')
-  onRouteChanged(route: any, oldRoute: any) :void {   
-    this.activeIndex = route.path.replace('/photo/', '')
+  public onRouteChanged(route: any, oldRoute: any) {
+    this.activeIndex = route.path.replace('/photo/', '');
   }
 
-  created () {
-    this.activeIndex = this.$route.path.replace('/photo/', '')
+  public created() {
+    this.activeIndex = this.$route.path.replace('/photo/', '');
   }
 }
 </script>
