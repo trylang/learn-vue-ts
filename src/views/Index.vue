@@ -1,4 +1,5 @@
 <template>
+<div>frfrfrfr</div>
 </template>
 
 <script lang="ts">
@@ -14,9 +15,9 @@ import {
 @Component({})
 export default class Index extends Vue {
   @Action updateUserInfo: any;
-  public create() {
-    this.updateUserInfo(this.$route.query);
-    // this.$store.commit('updateUserInfo', this.$route.query);
+  created() {
+    // this.updateUserInfo(this.$route.query);
+    this.$store.commit('updateUserInfo', this.$route.query);
     this.$router.push('/photo/list');
   }
 }

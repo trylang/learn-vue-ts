@@ -7,7 +7,7 @@ import { Component, Vue, Watch, Prop } from "vue-property-decorator";
 @Component({})
 export default class SmallTitle extends Vue {
   @Prop({})
-  title: string = '';
+  title?: string;
 }
 </script>
 

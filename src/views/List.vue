@@ -4,7 +4,7 @@
       <small-title title="小票审核列表"></small-title>
       <div class="select-condition">
 			  <el-input 
-	        v-model="turntableName" 
+	        v-model="vipCard" 
 	        placeholder="请输入会员卡号">
           <i
             class="el-icon-search el-input__icon"
@@ -13,7 +13,7 @@
           </i>
         </el-input>
         <el-input 
-	        v-model="turntableName" 
+	        v-model="mobile" 
 	        placeholder="请输入会员手机号">
           <i
             class="el-icon-search el-input__icon"
@@ -136,7 +136,8 @@ import {
 export default class List extends Vue {
   @State userInfo: any;
   private activityName: string = '';
-  private turntableName: string = '';
+  private vipCard: string = '';
+  private mobile: string = '';
   private dateRange: string = '';
   private total: number = 1;
   private size: number = 10;
@@ -203,6 +204,8 @@ export default class List extends Vue {
       method: 'POST',
       url: 'wxapp-bill-integral/b/bill/list',
       params: {
+        mobile: this.mobile,
+        vipCard: this.vipCard,
         portalId: this.userInfo.portalId,
         page: this.currentPage || 1,
         pageSize: this.size

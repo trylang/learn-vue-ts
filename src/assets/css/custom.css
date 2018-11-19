@@ -1,0 +1,24 @@
+.store > .el-form-item__content {
+  width: 220px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.number-input > .el-form-item__content {
+  margin-left: 0;
+}
+
+.number-input > .el-form-item__content .el-input-number {
+  width: 100%;
+}
+
+.number-input > .el-form-item__content .el-input-number .el-input-number__decrease,
+.number-input > .el-form-item__content .el-input-number .el-input-number__increase {
+  display: none;
+}
+
+.left .el-carousel__container {
+  height: 650px;
+}
+/*# sourceMappingURL=custom.css.map */
