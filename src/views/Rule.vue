@@ -15,6 +15,7 @@ import smallTitle from '@/components/SmallTitle.vue';
 import Editor from '@tinymce/tinymce-vue';
 import 'tinymce/themes/modern/index.js';
 import httpServer from '@/utils/http.ts';
+
 import {
   State,
 } from 'vuex-class';
@@ -72,6 +73,7 @@ export default class EditorCon extends Vue {
   };
   private rule: string = '';
   private initRule: any = {};
+  private userRouter: any = JSON.parse(sessionStorage.getItem('userRouter') || '');
 
   // 监听路由变化
   @Watch('$route')
@@ -96,7 +98,7 @@ export default class EditorCon extends Vue {
         this.initRule.id ? 'edit' : 'add'
       }`,
       params: {
-        portalId: this.userInfo.portalId,
+        portalId: this.userRouter.portalId || this.userInfo.portalId,
         rule: this.initRule.rule,
         id: null
       }
@@ -112,20 +114,25 @@ export default class EditorCon extends Vue {
       this.$router.push('list');
     });
   }
-  public created() {
+
+  public getRule() {
     const param = {
       method: 'POST',
       url: 'wxapp-bill-integral/b/bill/rule/get',
       params: {
-        portalId: this.userInfo.portalId
+        portalId: this.userRouter.portalId || this.userInfo.portalId
       }
     };
     httpServer(param).then((res: any) => {
       if (res.data) {
         this.EditorContent = res.data.rule;
+        this.$emit('update:EditorContent', res.data.rule);
         this.initRule = res.data;
       }
     });
+  }
+  public created() {
+    this.getRule();
   }
 }
 </script>

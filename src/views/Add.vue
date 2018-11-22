@@ -5,13 +5,13 @@
       <p>为验证订单信息属实，请准确填写图中相关信息并完成排重认证</p>
       <el-form class="form" :model="form" label-width="100px">
         <el-form-item label="订单号：">
-          <el-input placeholder="请填写完整订单号" v-model="form.receiptNumber"></el-input>
+          <el-input placeholder="请填写完整订单号" @change="ifverify=-1;" v-model="form.receiptNumber"></el-input>
         </el-form-item>
         <el-form-item label="消费日期：">
-          <el-date-picker type="date" placeholder="请选择消费日期" value-format="yyyy-MM-dd" v-model="form.shoppingTime" style="width: 100%;"></el-date-picker>
+          <el-date-picker type="date" placeholder="请选择消费日期" @change="ifverify=-1;" value-format="yyyy-MM-dd" v-model="form.shoppingTime" style="width: 100%;"></el-date-picker>
         </el-form-item>
         <el-form-item class="store" label="消费商户：">
-          <el-select class="select" v-model="form.storeId" placeholder="请选择">
+          <el-select class="select" @change="ifverify=-1;" v-model="form.storeId" placeholder="请选择">
             <el-option
               v-for="item in stores"
               :key="item.id"
@@ -21,14 +21,14 @@
           </el-select>
           <div class="verify-content">
             <span class="verify" @click="verify">排重验证</span>
-            <span v-if="ifverify > 0" style="color: #71B900;position: absolute; width: 40%; padding-left: 1rem;"><i class="el-icon-circle-check"></i>成功认证</span>
-            <span v-if="ifverify == 0" style="color: #FF7633;position: absolute; width: 40%; padding-left: 1rem;"><i class="el-icon-circle-close"></i>重复订单</span>
+            <span v-if="ifverify == 0" style="color: #71B900;position: absolute; width: 40%; padding-left: 1rem;"><i class="el-icon-circle-check"></i>成功认证</span>
+            <span v-if="ifverify > 0" style="color: #FF7633;position: absolute; width: 40%; padding-left: 1rem;"><i class="el-icon-circle-close"></i>重复订单</span>
           </div>
           
         </el-form-item>
 
         <div class="line"></div>
-        <p v-if="ifverify > 0">请填写积分事项</p>
+        <p v-if="ifverify == 0">请填写积分事项</p>
 
         <el-form-item class="number-input" v-if="ifverify == 0" label="手机号：">
           <el-input-number placeholder="请填写会员手机号" controls-position="right" :min="0" :max="19999999999" v-model="form.mobile"></el-input-number>
@@ -43,7 +43,7 @@
 
         <el-form-item style="margin-top: 2.5rem;">
           <el-button class="btn btn-submit" @click="onSubmit">确认积分</el-button>
-          <el-button class="btn btn-cancel" @click="form={}; ifverify=-1;">取消</el-button>
+          <el-button class="btn btn-cancel" @click="cancel">取消</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -51,12 +51,10 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator';
-import smallTitle from '@/components/SmallTitle.vue';
-import httpServer from '@/utils/http.ts';
-import {
-  State,
-} from 'vuex-class';
+import { Component, Vue, Watch } from "vue-property-decorator";
+import smallTitle from "@/components/SmallTitle.vue";
+import httpServer from "@/utils/http.ts";
+import { State } from "vuex-class";
 
 interface Jifen {
   mobile?: string;
@@ -70,29 +68,36 @@ interface Jifen {
 
 @Component({
   components: {
-    smallTitle,
-  },
+    smallTitle
+  }
 })
 export default class Add extends Vue {
-  @State userInfo: any;
+  @State
+  userInfo: any;
   public form: Jifen = {};
   private stores: any = [];
   private ifverify: number = -1; // 没有校验状态
+  private userRouter: any = JSON.parse(
+    sessionStorage.getItem("userRouter") || ""
+  );
 
   public verify() {
     // 验重
     if (!this.form.receiptNumber || !this.form.storeId) {
-      this.$message('请填写完成信息');
+      this.$message({
+        message: "请填写完成信息",
+        showClose: true
+      });
       return;
     }
     const param = {
-      method: 'POST',
-      url: 'wxapp-bill-integral/b/bill/check',
+      method: "POST",
+      url: "wxapp-bill-integral/b/bill/check",
       params: {
-        portalId: this.userInfo.portalId,
+        portalId: this.userRouter.portalId || this.userInfo.portalId,
         receiptNumber: this.form.receiptNumber,
-        storeId: this.form.storeId,
-      },
+        storeId: this.form.storeId
+      }
     };
     const that = this;
     httpServer(param).then((res: any) => {
@@ -102,27 +107,28 @@ export default class Add extends Vue {
 
   public search(fee: number) {
     if (!fee || !this.form.storeId || !this.form.mobile) {
-      this.$message('请填写完成信息');
+      this.$message("请填写完成信息");
       return;
     }
     if (fee === 0) {
-      this.$message('消费金额需大于0');
+      this.$message("消费金额需大于0");
       return;
     }
     const param = {
-      method: 'POST',
-      url: 'wxapp-bill-integral/b/bill/rule/crm/info',
+      method: "POST",
+      url: "wxapp-bill-integral/b/bill/rule/crm/info",
       params: {
-        portalId: this.userInfo.portalId,
-        portalType: this.userInfo.subjectType,
+        portalId: this.userRouter.portalId || this.userInfo.portalId,
+        portalType:
+          this.userRouter.subjectType || this.userInfo.subjectType || 1,
         mobile: this.form.mobile,
-        storeId: this.form.storeId,
-      },
+        storeId: this.form.storeId
+      }
     };
     const that = this;
     httpServer(param).then((res: any) => {
       if (!res.data || res.data.perComsum <= 0) {
-        this.$message('没有此积分规则');
+        this.$message("没有此积分规则");
         return;
       }
       const num = ((fee * 100) / res.data.perComsum).toFixed(2);
@@ -133,46 +139,61 @@ export default class Add extends Vue {
 
   public onSubmit() {
     const form = this.form;
+    
     if (Object.keys(form).length === 0 || !form.storeId) {
-      this.$message('请填写完成信息');
+      this.$message("请填写完成信息");
       return;
     }
-
+    if (this.ifverify === -1) {
+      this.$message("请您先做排重验证");
+      return;
+    }
+    if (this.ifverify > 0) {
+      this.$message("目前又重复订单，请重新填入");
+      return;
+    }
     const param = {
-      method: 'POST',
-      url: 'wxapp-bill-integral/b/bill/add',
+      method: "POST",
+      url: "wxapp-bill-integral/b/bill/add",
       params: {
-        portalId: this.userInfo.portalId,
+        portalId: this.userRouter.portalId || this.userInfo.portalId,
+        userId: this.userRouter.userId || this.userInfo.userId,
+        integral: form.integral,
         mobile: form.mobile,
         receiptNumber: form.receiptNumber,
         shoppingTime: form.shoppingTime,
         shoppingFee: form.shoppingFee ? form.shoppingFee * 100 : 0,
         storeId: form.storeId,
-        storeName: this.stores.find((item: any) => item.id === form.storeId).name
+        storeName: this.stores.find((item: any) => item.id === form.storeId)
+          .name
       }
     };
     httpServer(param).then((res: any) => {
       this.$message({
         showClose: true,
-        message: '添加成功',
-        type: 'success',
+        message: "添加成功",
+        type: "success"
       });
-      this.$router.push('list');
+      this.$router.push("list");
     });
   }
 
-  public create() {
+  public cancel() {
+    this.$router.replace('/photo/list')
+  }
+
+  created() {
     this.getStores();
   }
 
   private getStores() {
     const param = {
-      method: 'POST',
-      url: 'wxapp-bill-integral/common/bill/store/list',
+      method: "POST",
+      url: "wxapp-bill-integral/common/bill/store/list",
       params: {
-        portalId: this.userInfo.portalId,
-        keyWords: '',
-      },
+        portalId: this.userRouter.portalId || this.userInfo.portalId,
+        keyWords: ""
+      }
     };
 
     httpServer(param).then((res: any) => {

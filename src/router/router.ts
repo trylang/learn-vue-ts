@@ -10,11 +10,13 @@ export default new Router({
     {
       path: '/',
       component: Layout,
+      name: '拍照积分',
       redirect: '/photo/index',
     },
     {
       path: '/photo',
       component: Layout,
+      name: '拍照积分',
       redirect: '/photo/list',
       children: photoRoute,
     },

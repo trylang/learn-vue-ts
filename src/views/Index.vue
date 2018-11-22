@@ -18,6 +18,7 @@ export default class Index extends Vue {
   created() {
     // this.updateUserInfo(this.$route.query);
     this.$store.commit('updateUserInfo', this.$route.query);
+    sessionStorage.setItem('userRouter', JSON.stringify(this.$route.query));
     this.$router.push('/photo/list');
   }
 }

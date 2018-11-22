@@ -7,7 +7,7 @@ const proUrl = 'http://appsmall.rtmap.com/';
 const jiantingUrl = 'http://10.10.10.230:8704/';
 const APIUrl = '/api';
 
-export const api = jiantingUrl;
+export const api = proUrl;
 
 const httpServer = (opts: any) => {
   const httpDefaultOpts = {
@@ -45,7 +45,16 @@ const httpServer = (opts: any) => {
     Axios(httpDefaultOpts)
       .then((res) => {
         if (!res.data.status) {
-          resolve(res.data);
+          if (res.headers['content-type'] === 'application/json;charset=utf-8') {
+            Message({
+              showClose: true,
+              message: '导出内容没有数据',
+              type: 'error',
+            });
+            // reject(res);
+          } else {
+            resolve(res.data);
+          }  
         } else if (res.data.status === 200) {
           resolve(res.data);
         } else {

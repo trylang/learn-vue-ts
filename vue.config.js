@@ -1,3 +1,3 @@
 module.exports = {
-  "baseUrl": "/mafront/application/photo-integral"
+  "baseUrl": process.env.NODE_ENV === "production" ? "./" : "/"
 }

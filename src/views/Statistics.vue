@@ -2,27 +2,23 @@
   <div style="margin-bottom: 30px;">
     <smallTitle title="数据统计"></smallTitle>
     <div class="select-condition">
-      
-      <el-date-picker
-            v-model="param.date[0]"
+      <!-- <el-date-picker
+            v-model="param.startDate"
             type="date"
-            format="yyyy-MM-dd"
             value-format="yyyy-MM-dd"
-            @change="getStatics"
             placeholder="开始日期"
             :picker-options="pickerOptions0">
       </el-date-picker>
       <el-date-picker
-            v-model="param.date[1]"
+            v-model="param.endDate"
             type="date"
-            format="yyyy-MM-dd"
             value-format="yyyy-MM-dd"
             @change="getStatics"
             placeholder="结束日期"
             :picker-options="pickerOptions1">
-      </el-date-picker>
+      </el-date-picker> -->
 
-      <!-- <el-date-picker
+      <el-date-picker
         style="margin-right: 27px;"
         v-model="param.date"
         type="daterange"
@@ -32,11 +28,11 @@
         range-separator="至"
         start-placeholder="开始日期"
         end-placeholder="结束日期">
-      </el-date-picker> -->
+      </el-date-picker>
 
       <el-select v-model="param.state" @change="getStatics" placeholder="统计类型">
         <el-option
-          v-for="item in [{id: 0, label: '待审核'}, {id: 1, label: '审核通过'}, {id: 2, label: '驳回'}]"
+          v-for="item in [{id: -1, label: '提交数'}, {id: 0, label: '待审核'}, {id: 1, label: '审核通过'}, {id: 2, label: '驳回'}]"
           :key="item.id"
           :label="item.label"
           :value="item.id">
@@ -73,34 +69,33 @@ export default class List extends Vue {
   @State userInfo: any;
   public myChart: any = {};
   private param: any = {
-    date: [
-      timestampToTime(new Date().getTime() - 31 * 24 * 3600 * 1000, "ymd"),
-      timestampToTime(new Date().valueOf(), "ymd")
-    ]
+    data: [timestampToTime(new Date().valueOf() - 31 * 24 * 3600 * 1000, "ymd"), timestampToTime(new Date().valueOf(), "ymd")],
+    startDate: timestampToTime(new Date().valueOf() - 31 * 24 * 3600 * 1000, "ymd"),
+    endDate: timestampToTime(new Date().valueOf(), "ymd")
   };
+  private userRouter: any = JSON.parse(sessionStorage.getItem('userRouter') || '');
   private list: any = [];
   private pickerOptions0: any = {
     disabledDate: (time: any) => {
-      if ((this.param.date[1]! = "")) {
-        return (
-          time.getTime() > Date.now() || time.getTime() > this.param.date[1]
-        );
-      } else {
-        return time.getTime() > Date.now();
+      let endDate = this.param.endDate;
+      if (endDate! = ""  || endDate != null) {
+        let oneMonth = 31 * 24 * 3600 * 1000;
+        let oneMonthNum = (new Date(endDate)).getTime() - oneMonth;
+        return time.getTime() < oneMonthNum;
       }
     }
   };
 
   private pickerOptions1: any = {
     disabledDate: (time: any) => {
-      if ((this.param.date[0]! = "" || this.param.date[0] != null)) {
-        const startVal = new Date(this.param.date[0]).getTime();
-        const endVal = new Date(this.param.date[1]).getTime();
-        const oneYear = 31 * 24 * 3600 * 1000;
-        const oneYearNum = startVal + oneYear;
+      let startDate = this.param.startDate;
+      if (this.param.startDate! = "" || this.param.startDate != null) {
+        const startVal = new Date(startDate).getTime();
+        const oneMonth = 31 * 24 * 3600 * 1000;
+        const oneMonthNum = startVal + oneMonth;
 
-        if (oneYearNum > oneYear) {
-          return time.getTime() > oneYearNum;
+        if (oneMonthNum > oneMonth) {
+          return time.getTime() > oneMonthNum;
         }
       }
     }
@@ -111,9 +106,19 @@ export default class List extends Vue {
       url: "wxapp-bill-integral/b/bill/statics/export",
       responseType: "blob",
       params: {
-        portalId: this.userInfo.portalId
+        portalId: this.userRouter.portalId || this.userInfo.portalId,
+        state: this.param.state,
+        startDate: this.param.date ? this.param.date[0]: '',
+        endDate: this.param.date ? this.param.date[1]: ''
       }
     };
+    if (!this.param.date) {
+      delete param.params.startDate;
+      delete param.params.endDate;
+    }
+    if (this.param.state == -1) {
+      delete param.params.state;
+    }
     httpServer(param).then((res: any) => {
       let href = window.URL.createObjectURL(res);
       let eleLink = document.createElement("a");
@@ -164,13 +169,20 @@ export default class List extends Vue {
       method: "POST",
       url: "wxapp-bill-integral/b/bill/statics",
       params: {
-        portalId: this.userInfo.portalId,
+        portalId: this.userRouter.portalId || this.userInfo.portalId,
         state: this.param.state,
-        startDate: this.param.date ? this.param.date[0] : "2010-05-01",
-        endDate: this.param.date ? this.param.date[1] : "2018-11-13"
+        startDate: this.param.date ? this.param.date[0]: '',
+        endDate: this.param.date ? this.param.date[1]: ''
       }
     };
 
+    if (!this.param.date) {
+      delete param.params.startDate;
+      delete param.params.endDate;
+    }
+    if (this.param.state == -1) {
+      delete param.params.state;
+    }
     httpServer(param).then((res: any) => {
       if (res.status === 200) {
         this.initOptions(res.data);

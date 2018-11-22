@@ -7,21 +7,27 @@ import Rule from '@/views/Rule.vue';
 
 const photoRoute = [{
   path: 'index',
+  name: '拍照积分',
   component: index,
 }, {
   path: 'list',
+  name: '拍照列表',
   component: List,
 }, {
   path: 'add',
+  name: '添加',
   component: Add,
 }, {
   path: 'detail',
+  name: '详情',
   component: Detail,
 }, {
   path: 'statistics',
+  name: '数据统计',
   component: Statistics,
 }, {
   path: 'rule',
+  name: '规则说明',
   component: Rule,
 }];
 

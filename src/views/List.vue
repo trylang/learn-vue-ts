@@ -22,12 +22,24 @@
           </i>
         </el-input>
         <el-date-picker
+          style="margin-right: 15px;"
           v-model="dateRange"
           @change='getActivityList'
           format="yyyy-MM-dd"
           value-format="yyyy-MM-dd"
-          type="date">
+          type="daterange"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期">
         </el-date-picker>
+        <el-select v-model="state" @change="handleIconClick" placeholder="状态">
+        <el-option
+          v-for="item in [{id: -1, label: '全部'}, {id: 0, label: '待审核'}, {id: 1, label: '审核通过'}, {id: 2, label: '驳回'}]"
+          :key="item.id"
+          :label="item.label"
+          :value="item.id">
+        </el-option>
+      </el-select>
       </div>
     </header>
     <div class="content">
@@ -38,7 +50,7 @@
           <span v-for='item in sizeList' :key='item' :class="size==item?'size-item size-active':'size-item'" @click='handleGetSize(item)'>{{item}}条</span>
         </div>
         <div>
-          <button class="create-activity" @click='handleCreated'>活动创建</button>
+          <button class="create-activity" @click='handleCreated'>手动积分</button>
           <i style="font-size: 24px; cursor: pointer;" @click="handleDownload" class="el-icon-download"></i>
         </div>
         
@@ -138,13 +150,15 @@ export default class List extends Vue {
   private activityName: string = '';
   private vipCard: string = '';
   private mobile: string = '';
-  private dateRange: string = '';
+  private state: string = '';
+  private dateRange: any = [];
   private total: number = 1;
   private size: number = 10;
   private loading: boolean = false;
   private currentPage: number = 1;
   private sizeList: number[] = [10, 20, 30];
   private list: any = [];
+  private userRouter: any = JSON.parse(sessionStorage.getItem('userRouter') || '');
   public getRowClass({ row, column, rowIndex, columnIndex }: any) {
     if (rowIndex === 0) {
       return 'background:#284567;color:#fff;text-align:center;height:44px;';
@@ -162,9 +176,23 @@ export default class List extends Vue {
       url: 'wxapp-bill-integral/b/bill/export',
       responseType: 'blob',
       params: {
-        portalId: this.userInfo.portalId,
+        mobile: this.mobile,
+        vipCard: this.vipCard,
+        state: this.state,
+        portalId: this.userRouter.portalId || this.userInfo.portalId,
+        page: this.currentPage || 1,
+        pageSize: this.size,
+        startDate: this.dateRange ? this.dateRange[0] : '',
+        endDate: this.dateRange ? this.dateRange[1] : '',
       },
     };
+    if (!this.dateRange) {
+      delete param.params.startDate;
+      delete param.params.endDate;
+    }
+    if (this.state == '-1') {
+      delete param.params.state;
+    }
     httpServer(param).then((res: any) => {
       let href = window.URL.createObjectURL(res);
       let eleLink = document.createElement('a');
@@ -206,11 +234,21 @@ export default class List extends Vue {
       params: {
         mobile: this.mobile,
         vipCard: this.vipCard,
-        portalId: this.userInfo.portalId,
+        state: this.state,
+        portalId: this.userRouter.portalId || this.userInfo.portalId,
         page: this.currentPage || 1,
-        pageSize: this.size
+        pageSize: this.size,
+        startDate: this.dateRange ? this.dateRange[0] : '',
+        endDate: this.dateRange ? this.dateRange[1] : '',
       }
     };
+    if (!this.dateRange) {
+      delete param.params.startDate;
+      delete param.params.endDate;
+    }
+    if (this.state == '-1') {
+      delete param.params.state;
+    }
     httpServer(param).then((res: any) => {
       if (res.status === 200) {
         res.data.list.forEach((item: any) => {
@@ -234,11 +272,12 @@ export default class List extends Vue {
   padding-bottom: 17px;
   text-align: left;
   margin-top: 18px;
+  display: flex;
   .el-input {
     line-height: 1;
     width: 254px;
-    border: none;
-    margin-right: 27px;
+    // border: none;
+    margin-right: 15px;
     .el-input__inner {
       padding-bottom: 5px;
       border: none;
@@ -253,7 +292,7 @@ export default class List extends Vue {
     margin-top: -20px;
   }
   .el-input__inner {
-    border: none;
+    // border: none;
     border-bottom: 1px solid #ccc;
     padding-bottom: 5px;
   }
@@ -287,11 +326,11 @@ export default class List extends Vue {
     .el-input {
       line-height: 1;
       width: 254px;
-      border: none;
-      margin-right: 27px;
+      // border: none;
+      margin-right: 15px;
       .el-input__inner {
         padding-bottom: 5px;
-        border: none;
+        // border: none;
         border-bottom: 1px solid #ccc;
         font-size: 14px;
         height: auto;
@@ -303,7 +342,7 @@ export default class List extends Vue {
       margin-top: -20px;
     }
     .el-input__inner {
-      border: none;
+      // border: none;
       border-bottom: 1px solid #ccc;
       padding-bottom: 5px;
     }

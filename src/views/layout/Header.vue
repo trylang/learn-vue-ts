@@ -1,45 +1,53 @@
 <template>
-    <div class="menubox">
-        <div class="head">
-            <div class="grid-content header-left bg-purple-dark left-info">
-                <img src="../../assets/imgs/logo.png" class="logo-img" alt="">
-            </div>
-            <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal">
-                <el-menu-item index="list">
-                    <router-link :to="{path:'/photo/list'}">
-                        小票审核
-                    </router-link>
-                </el-menu-item>
-                <el-menu-item index="rule">
-                    <router-link :to="{path:'/photo/rule'}">
-                        规则说明
-                    </router-link>
-                </el-menu-item>
-                <el-menu-item index="statistics">
-                    <router-link :to="{path:'/photo/statistics'}">
-                        数据统计
-                    </router-link>
-                </el-menu-item>
-            </el-menu>
+  <section class="menubox">
+    <div>
+      <div class="head">
+        <div class="grid-content header-left bg-purple-dark left-info">
+            <img src="../../assets/imgs/logo.png" class="logo-img" alt="">
         </div>
+        <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal">
+            <el-menu-item index="list">
+                <router-link :to="{path:'/photo/list'}">
+                    小票审核
+                </router-link>
+            </el-menu-item>
+            <el-menu-item index="rule">
+                <router-link :to="{path:'/photo/rule'}">
+                    规则说明
+                </router-link>
+            </el-menu-item>
+            <el-menu-item index="statistics">
+                <router-link :to="{path:'/photo/statistics'}">
+                    数据统计
+                </router-link>
+            </el-menu-item>
+        </el-menu>
+      </div>
+      <el-breadcrumb style="margin: 1rem 3rem;" separator-class="el-icon-arrow-right">
+        <el-breadcrumb-item v-for="(item, index) in breadList" :key="index" :to="item.path">{{item.name}}</el-breadcrumb-item>
+      </el-breadcrumb>
     </div>
+  </section>
 </template>
 
 <script lang="ts">
-import { Component, Watch, Vue, Model } from 'vue-property-decorator';
+import { Component, Watch, Vue, Model } from "vue-property-decorator";
 
 @Component({})
 export default class Header extends Vue {
-  public activeIndex: string = 'list';
-
+  public activeIndex: string = "list";
+  public breadList: any = [];
   // 监听路由变化
-  @Watch('$route')
+  @Watch("$route")
   public onRouteChanged(route: any, oldRoute: any) {
-    this.activeIndex = route.path.replace('/photo/', '');
+    this.activeIndex = route.path.replace("/photo/", "");
+    this.breadList = route.matched;
   }
 
   public created() {
-    this.activeIndex = this.$route.path.replace('/photo/', '');
+    this.activeIndex = this.$route.path.replace("/photo/", "");
+    this.breadList = this.$route.matched;
+
   }
 }
 </script>
