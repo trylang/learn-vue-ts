@@ -253,7 +253,7 @@ export default class List extends Vue {
       if (res.status === 200) {
         res.data.list.forEach((item: any) => {
           item.createTime = timestampToTime(item.createTime);
-          item.shoppingTime = timestampToTime(item.shoppingTime);
+          // item.shoppingTime = timestampToTime(item.shoppingTime);
         });
         this.total = res.data.total;
         this.list = res.data.list;

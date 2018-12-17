@@ -33,6 +33,7 @@ export default class Layout extends Vue {}
     padding: 1.5rem;
   }
   footer {
+    z-index: 0;
     position: fixed;
     bottom: 0;
     height: 60px;

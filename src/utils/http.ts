@@ -7,6 +7,8 @@ const proUrl = 'http://appsmall.rtmap.com/';
 const jiantingUrl = 'http://10.10.10.230:8704/';
 const APIUrl = '/api';
 
+let userRouter = JSON.parse(sessionStorage.getItem("userRouter") || null) || {};
+
 export const api = proUrl;
 
 const httpServer = (opts: any) => {
@@ -25,11 +27,11 @@ const httpServer = (opts: any) => {
             'X-Requested-With': 'XMLHttpRequest',
             'Accept': 'application/json',
             'Content-Type': 'application/json; charset=UTF-8',
-            // systoken: ""
+            token: userRouter.token
           }
         : {
             'Content-Type': 'application/json;charset=UTF-8',
-            // systoken: ""
+            token: userRouter.token
           },
   };
   // if (getToken()) {

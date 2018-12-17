@@ -11,7 +11,7 @@
           <el-date-picker type="date" placeholder="请选择消费日期" @change="ifverify=-1;" value-format="yyyy-MM-dd" v-model="form.shoppingTime" style="width: 100%;"></el-date-picker>
         </el-form-item>
         <el-form-item class="store" label="消费商户：">
-          <el-select class="select" @change="ifverify=-1;" v-model="form.storeId" placeholder="请选择">
+          <el-select class="select" @change="ifverify=-1;" filterable  v-model="form.storeId" placeholder="请选择">
             <el-option
               v-for="item in stores"
               :key="item.id"
@@ -96,6 +96,7 @@ export default class Add extends Vue {
       params: {
         portalId: this.userRouter.portalId || this.userInfo.portalId,
         receiptNumber: this.form.receiptNumber,
+        shoppingTime:  this.form.shoppingTime,
         storeId: this.form.storeId
       }
     };
