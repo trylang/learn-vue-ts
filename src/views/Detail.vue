@@ -74,11 +74,11 @@
             </el-form-item>
             <el-form-item label="消费日期：">
               <el-date-picker
-                type="date"
+                type="datetime"
                 placeholder="请选择消费日期"
                 @change="ifverify=-1;"
                 v-model="detail.shoppingTime"
-                value-format="yyyy-MM-dd"
+                value-format="yyyy-MM-dd HH:mm:ss"
                 style="width: 100%;"
               ></el-date-picker>
             </el-form-item>
@@ -129,14 +129,14 @@
               label="消费金额："
             >
               <el-input-number placeholder="请填写当前小票消费金额" v-model="detail.shoppingFee"></el-input-number>
-              <span
+              <!-- <span
                 style=" position: relative; top: -2.5rem; left: 9rem; display: block; margin-left: 10px; width: 100px; color: #FF7633; cursor: pointer;"
                 @click="search(detail.shoppingFee)"
-              >查询积分</span>
+              >查询积分</span> -->
             </el-form-item>
-            <el-form-item v-if="detail.state == 1" class="number-input" label="本次积分：">
+            <!-- <el-form-item v-if="detail.state == 1" class="number-input" label="本次积分：">
               <el-input-number placeholder="请填写积分数额" :step="1" :min="0" v-model="detail.integral"></el-input-number>
-            </el-form-item>
+            </el-form-item> -->
             <el-form-item v-if="detail.state == 2" label="驳回理由：">
               <el-input
                 placeholder="请填写驳回理由"
@@ -296,7 +296,7 @@ export default class List extends Vue {
         shoppingTime: this.detail.shoppingTime,
         reason: this.detail.reason,
         storeName: store ? store.name : "",
-        integral: this.detail.integral,
+        // integral: this.detail.integral,
         state: this.detail.state,
         storeId: this.detail.storeId
       }

@@ -7,15 +7,34 @@ const proUrl = 'http://appsmall.rtmap.com/';
 const jiantingUrl = 'http://10.10.10.230:8704/';
 const APIUrl = '/api';
 
-let userRouter = JSON.parse(sessionStorage.getItem("userRouter") || null) || {};
+let apiUrl = '';
 
-export const api = proUrl;
+let domain = document.domain;
+
+switch (domain) {
+  case '127.0.0.1':
+  case '10.10.10.141':
+    apiUrl = devUrl;
+    break;
+  
+  case 'air.rtmap.com':
+    apiUrl = proUrl;
+    break;
+  default: 
+    apiUrl = proUrl;
+    break;
+}
+export let api = apiUrl;
+
+let userRouter = JSON.parse(sessionStorage.getItem("userRouter") || '{}') || {};
+
+// export const api = proUrl;
 
 const httpServer = (opts: any) => {
   const httpDefaultOpts = {
     // http默认配置
     method: opts.method,
-    baseURL: api, // 测试
+    baseURL: apiUrl, // 测试
     url: opts.url,
     timeout: 100000,
     params: opts.params,
@@ -27,11 +46,11 @@ const httpServer = (opts: any) => {
             'X-Requested-With': 'XMLHttpRequest',
             'Accept': 'application/json',
             'Content-Type': 'application/json; charset=UTF-8',
-            token: userRouter.token
+            token: userRouter.ma5_token
           }
         : {
             'Content-Type': 'application/json;charset=UTF-8',
-            token: userRouter.token
+            token: userRouter.ma5_token
           },
   };
   // if (getToken()) {

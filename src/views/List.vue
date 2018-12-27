@@ -196,7 +196,7 @@ export default class List extends Vue {
     httpServer(param).then((res: any) => {
       let href = window.URL.createObjectURL(res);
       let eleLink = document.createElement('a');
-      eleLink.download = `订单列表.xls`;
+      eleLink.download = `订单列表.csv`;
       eleLink.href = href;
       eleLink.click();
     });

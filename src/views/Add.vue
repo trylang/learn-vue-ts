@@ -8,7 +8,7 @@
           <el-input placeholder="请填写完整订单号" @change="ifverify=-1;" v-model="form.receiptNumber"></el-input>
         </el-form-item>
         <el-form-item label="消费日期：">
-          <el-date-picker type="date" placeholder="请选择消费日期" @change="ifverify=-1;" value-format="yyyy-MM-dd" v-model="form.shoppingTime" style="width: 100%;"></el-date-picker>
+          <el-date-picker type="datetime" placeholder="请选择消费日期" @change="ifverify=-1;" value-format="yyyy-MM-dd HH:mm:ss" v-model="form.shoppingTime" style="width: 100%;"></el-date-picker>
         </el-form-item>
         <el-form-item class="store" label="消费商户：">
           <el-select class="select" @change="ifverify=-1;" filterable  v-model="form.storeId" placeholder="请选择">
@@ -35,11 +35,11 @@
         </el-form-item>
         <el-form-item class="store number-input" style="width: 70%;" v-if="ifverify == 0" label="消费金额：">
           <el-input-number placeholder="请填写当前小票消费金额" controls-position="right"  :min="0" :max="999999" v-model="form.shoppingFee"></el-input-number>
-          <span style="display: block; margin-left: 10px; width: 100px; color: #FF7633; cursor: pointer;" @click="search(form.shoppingFee)">查询积分</span>
+          <!-- <span style="display: block; margin-left: 10px; width: 100px; color: #FF7633; cursor: pointer;" @click="search(form.shoppingFee)">查询积分</span> -->
         </el-form-item>
-        <el-form-item class="number-input" v-if="ifverify == 0" label="本次积分：">
+        <!-- <el-form-item class="number-input" v-if="ifverify == 0" label="本次积分：">
           <el-input-number placeholder="请填写积分数额" v-model="form.integral" :step="1" controls-position="right" :min="0" :max="999999"></el-input-number>
-        </el-form-item>
+        </el-form-item> -->
 
         <el-form-item style="margin-top: 2.5rem;">
           <el-button class="btn btn-submit" @click="onSubmit">确认积分</el-button>
