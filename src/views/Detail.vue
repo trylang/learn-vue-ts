@@ -204,7 +204,7 @@ export default class List extends Vue {
   private stores: any = [];
   private list: any = [];
   private userRouter: any = JSON.parse(
-    sessionStorage.getItem("userRouter") || ""
+    sessionStorage.getItem("userRouter") || "{}"
   );
 
   $refs!: {

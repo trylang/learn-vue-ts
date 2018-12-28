@@ -1,6 +1,5 @@
 import Axios from 'axios';
 import { Message } from 'element-ui';
-// import { getToken } from '@/views/utils/auth';
 
 const devUrl = 'https://wx-mini.rtmap.com/';
 const proUrl = 'http://appsmall.rtmap.com/';
@@ -26,11 +25,13 @@ switch (domain) {
 }
 export let api = apiUrl;
 
-let userRouter = JSON.parse(sessionStorage.getItem("userRouter") || '{}') || {};
 
 // export const api = proUrl;
-
+let userRouter = JSON.parse(sessionStorage.getItem("userRouter") || '{}') || {};
 const httpServer = (opts: any) => {
+  if (!userRouter.ma5_token) {
+    userRouter = JSON.parse(sessionStorage.getItem("userRouter") || '{}') || {};
+  };
   const httpDefaultOpts = {
     // http默认配置
     method: opts.method,

@@ -74,7 +74,7 @@ export default class EditorCon extends Vue {
   private rule: string = "";
   private initRule: any = {};
   private userRouter: any = JSON.parse(
-    sessionStorage.getItem("userRouter") || ""
+    sessionStorage.getItem("userRouter") || "{}"
   );
 
   // 监听路由变化

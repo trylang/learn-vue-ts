@@ -73,7 +73,7 @@ export default class List extends Vue {
     startDate: timestampToTime(new Date().valueOf() - 31 * 24 * 3600 * 1000, "ymd"),
     endDate: timestampToTime(new Date().valueOf(), "ymd")
   };
-  private userRouter: any = JSON.parse(sessionStorage.getItem('userRouter') || '');
+  private userRouter: any = JSON.parse(sessionStorage.getItem('userRouter') || '{}');
   private list: any = [];
   private pickerOptions0: any = {
     disabledDate: (time: any) => {

@@ -158,7 +158,7 @@ export default class List extends Vue {
   private currentPage: number = 1;
   private sizeList: number[] = [10, 20, 30];
   private list: any = [];
-  private userRouter: any = JSON.parse(sessionStorage.getItem('userRouter') || '');
+  private userRouter: any = JSON.parse(sessionStorage.getItem('userRouter') || '{}');
   public getRowClass({ row, column, rowIndex, columnIndex }: any) {
     if (rowIndex === 0) {
       return 'background:#284567;color:#fff;text-align:center;height:44px;';

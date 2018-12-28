@@ -78,7 +78,7 @@ export default class Add extends Vue {
   private stores: any = [];
   private ifverify: number = -1; // 没有校验状态
   private userRouter: any = JSON.parse(
-    sessionStorage.getItem("userRouter") || ""
+    sessionStorage.getItem("userRouter") || "{}"
   );
 
   public verify() {

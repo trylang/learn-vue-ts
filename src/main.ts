@@ -10,6 +10,7 @@ import httpServer from '@/utils/http.ts';
 Vue.config.productionTip = false;
 
 Vue.prototype.$api = httpServer;
+Vue.prototype.global_token = '';
 Vue.use(ElementUI);
 // console.log(Viewer);
 // debugger;
